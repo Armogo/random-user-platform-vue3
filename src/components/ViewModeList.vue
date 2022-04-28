@@ -8,11 +8,11 @@ main(class="overflow-y-scroll scrollbar" :class="darkMode ? 'scrollbar-dark' : '
         p Age: {{user.dob.age}}
         p Gender: {{user.gender}}
         p Location: {{user.location.country}}
-  TheModal(v-show="modal" :modal-data="modalData" :dark-mode="darkMode" @close-modal="showModal")
+  BaseModal(v-show="modal" :modal-data="modalData" :dark-mode="darkMode" @close-modal="showModal")
 </template>
 
 <script setup>
-import TheModal from "./TheModal.vue";
+import BaseModal from "./BaseModal.vue";
 import { ref } from "vue";
 
 const props = defineProps({

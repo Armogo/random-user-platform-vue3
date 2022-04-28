@@ -2,23 +2,23 @@
 div
   div(v-if="!isLoading" class="h-screen overflow-y-hidden grid grid-rows-layout" :class="[darkMode ? 'bg-slate-800 text-gray-300' : 'bg-slate-100 text-slate-900']")
     header(class="flex justify-end items-center gap-x-2 pr-4")
-      SwitchDarkMode(:dark-mode="darkMode" @switch-dark-mode="switchDarkMode")
-      SwitchDataPerPage(:dark-mode="darkMode" :data-per-page="dataPerPage" @switch-data-per-page="switchDataPerPage")
-      SwitchViewMode(:view-mode="viewMode" @switch-view-mode="switchViewMode")        
+      TheSwitchDarkMode(:dark-mode="darkMode" @switch-dark-mode="switchDarkMode")
+      TheSwitchDataPerPage(:dark-mode="darkMode" :data-per-page="dataPerPage" @switch-data-per-page="switchDataPerPage")
+      TheSwitchViewMode(:view-mode="viewMode" @switch-view-mode="switchViewMode")        
     ViewModeCard(v-if="viewMode === 'card'" :data="renderData" :dark-mode="darkMode")
     ViewModeList(v-else :data="renderData" :dark-mode="darkMode")
     ThePagination(:dark-mode="darkMode" :data-length="data.length" :data-per-page="dataPerPage" :current-page="currentPage" @change-current-page="changeCurrentPage")
-  TheIsLoading(v-else :unavailable="serverIsUnavailable")    
+  TheIsLoading(v-else)    
 </template>
 
 <script setup>
-import SwitchDarkMode from "./components/SwitchDarkMode.vue";
-import SwitchDataPerPage from "./components/SwitchDataPerPage.vue";
-import SwitchViewMode from "./components/SwitchViewMode.vue";
+import TheSwitchDarkMode from "./components/TheSwitchDarkMode.vue";
+import TheSwitchDataPerPage from "./components/TheSwitchDataPerPage.vue";
+import TheSwitchViewMode from "./components/TheSwitchViewMode.vue";
 import ViewModeCard from "./components/ViewModeCard.vue";
 import ViewModeList from "./components/ViewModeList.vue";
 import ThePagination from "./components/ThePagination.vue";
-import IsLoading from "./components/IsLoading.vue";
+import TheIsLoading from "./components/TheIsLoading.vue";
 import { ref, computed } from "vue";
 import { apiMethod } from "./utils/helper.js";
 
