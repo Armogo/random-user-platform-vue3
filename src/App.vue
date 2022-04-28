@@ -22,8 +22,6 @@ import IsLoading from "./components/IsLoading.vue";
 import { ref, computed } from "vue";
 import { apiMethod } from "./utils/helper.js";
 
-import dummyData from "./assets/users-3010-data.json";
-
 const data = ref([]); // Async
 const isLoading = ref(true); // wait for server response
 const serverIsUnavailable = ref(false); // when server unavailable
