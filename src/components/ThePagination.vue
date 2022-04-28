@@ -104,14 +104,13 @@ function initPagination() {
 watch(
   () => props.dataPerPage,
   (newValue, oldValue) => {
-    // All variables are Number
-
-    if (newValue < oldValue) {      
+    let oldTotalPage = Math.ceil(props.dataLength / oldValue);
+    let newTotalPage = Math.ceil(props.dataLength / newValue);
+    let newCurrentPage;
+    let newPagination;
+    
+    if (newValue < oldValue) {
       // data per page: [30 -> 10], [50 -> 30], [50 -> 30]
-
-      let oldTotalPage = Math.ceil(props.dataLength / oldValue);
-      let newTotalPage = Math.ceil(props.dataLength / newValue);
-      let newCurrentPage;
 
       if (oldTotalPage === props.currentPage) {
         // assume data length is 245
@@ -119,23 +118,24 @@ watch(
         // total page: [9 -> 25], [5 -> 9]
         // current page becomes: [9 -> 25], [5 -> 9]
         newCurrentPage = newTotalPage;
-
       } else if (props.currentPage === 1) {
         // assume data length is 245
         // data per page: [30 -> 10], [50 -> 30]
         // current page becomes: [1 -> 1], [1 -> 1]
         newCurrentPage = 1;
-
+        // but total page will become different
+        // so pagination should change
+        newPagination = [1, 2, 3, "...", totalPage.value];
+        pagination.value = newPagination;
       } else {
         newCurrentPage = Math.round((oldValue * props.currentPage) / newValue);
       }
       changeCurrentPage(newCurrentPage);
-    } else if (newValue > oldValue) {
-      // data per page: [10 -> 30], [30 -> 50], [10 -> 50]
+      return;
+    }
 
-      let oldTotalPage = Math.ceil(props.dataLength / oldValue);
-      let newTotalPage = Math.ceil(props.dataLength / newValue);
-      let newCurrentPage;
+    if (newValue > oldValue) {
+      // data per page: [10 -> 30], [30 -> 50], [10 -> 50]
 
       if (oldTotalPage === props.currentPage) {
         // assume data length is 245
@@ -143,18 +143,21 @@ watch(
         // total page: [25 -> 9], [9 -> 5]
         // current page becomes: [25 -> 9], [9 -> 5]
         newCurrentPage = newTotalPage;
-
       } else if (props.currentPage === 1) {
         // assume data length is 245
         // data per page: [10 -> 30], [30 -> 50]
         // current page becomes: [1 -> 1], [1 -> 1]
         newCurrentPage = 1;
-
+        // but total page will become different
+        // so pagination should change
+        newPagination = [1, 2, 3, "...", totalPage.value];
+        pagination.value = newPagination;
       } else {
         newCurrentPage = Math.ceil((oldValue * props.currentPage) / newValue);
       }
       changeCurrentPage(newCurrentPage);
-    }    
+      return;
+    }
   }
 );
 
@@ -168,8 +171,10 @@ watch(
 
     if (lastNum < 10) {
       // if total page < 10, show all page numbers:
-      // [1, 2, 3, 4, 5, 6, 7, 8, 9]
-      return;
+      // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      for (let i = 1; i <= lastNum; i++) {
+        newPagination.push(i);
+      }
     } else if (newValue <= 2) {
       // user chooses to go to page 1 or 2, pagination will become:
       // [1, 2, 3, '...', 10]
@@ -225,7 +230,7 @@ watch(
       ];
     }
 
-    pagination.value = newPagination;    
+    pagination.value = newPagination;
   }
 );
 
