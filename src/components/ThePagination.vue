@@ -49,6 +49,15 @@ function goNextPage() {
 function initPagination() {
   let lastNum = totalPage.value;
 
+  if (lastNum <= 9) {
+    // if total page < 10, show all page numbers:
+    // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for (let i = 1; i <= lastNum; i++) {
+      pagination.value.push(i);
+    }
+    return
+  }
+
   if (props.currentPage <= 2) {
     // [1, 2, 3, '...', 30]
     pagination.value = [1, 2, 3, "...", lastNum];
@@ -108,7 +117,7 @@ watch(
     let newTotalPage = Math.ceil(props.dataLength / newValue);
     let newCurrentPage;
     let newPagination;
-    
+
     if (newValue < oldValue) {
       // data per page: [30 -> 10], [50 -> 30], [50 -> 30]
 
