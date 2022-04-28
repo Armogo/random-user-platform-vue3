@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  div(class="h-screen overflow-y-hidden grid grid-rows-layout" :class="[darkMode ? 'bg-slate-800 text-gray-300' : 'bg-slate-100 text-slate-900']" v-if="!isLoading")
+  div(v-if="!isLoading" class="h-screen overflow-y-hidden grid grid-rows-layout" :class="[darkMode ? 'bg-slate-800 text-gray-300' : 'bg-slate-100 text-slate-900']")
     header(class="flex justify-end items-center gap-x-2 pr-4")
       SwitchDarkMode(:dark-mode="darkMode" @switch-dark-mode="switchDarkMode")
       SwitchDataPerPage(:dark-mode="darkMode" :data-per-page="dataPerPage" @switch-data-per-page="switchDataPerPage")
@@ -8,8 +8,7 @@ div
     ViewModeCard(v-if="viewMode === 'card'" :data="renderData" :dark-mode="darkMode")
     ViewModeList(v-else :data="renderData" :dark-mode="darkMode")
     ThePagination(:dark-mode="darkMode" :data-length="data.length" :data-per-page="dataPerPage" :current-page="currentPage" @change-current-page="changeCurrentPage")
-  div(v-else)
-    p Loading data...
+  TheIsLoading(v-else :unavailable="serverIsUnavailable")    
 </template>
 
 <script setup>
@@ -19,6 +18,7 @@ import SwitchViewMode from "./components/SwitchViewMode.vue";
 import ViewModeCard from "./components/ViewModeCard.vue";
 import ViewModeList from "./components/ViewModeList.vue";
 import ThePagination from "./components/ThePagination.vue";
+import IsLoading from "./components/IsLoading.vue";
 import { ref, computed } from "vue";
 import { apiMethod } from "./utils/helper.js";
 
@@ -26,6 +26,7 @@ import dummyData from "./assets/users-3010-data.json";
 
 const data = ref([]); // Async
 const isLoading = ref(true); // wait for server response
+const serverIsUnavailable = ref(false); // when server unavailable
 
 const darkMode = ref(false);
 const dataPerPage = ref(30);
@@ -45,6 +46,7 @@ async function fetchUserData(number) {
     data.value = response.data.results;
     isLoading.value = false;
   } catch (error) {
+    serverIsUnavailable.value = true;
     console.log("error", error);
   }
 }
