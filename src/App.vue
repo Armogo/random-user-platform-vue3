@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  div(class="h-screen overflow-y-hidden grid grid-rows-layout" :class="[darkMode ? 'bg-slate-800 text-gray-300' : 'bg-slate-100 text-slate-900']" v-show="!isLoading")
+  div(class="h-screen overflow-y-hidden grid grid-rows-layout" :class="[darkMode ? 'bg-slate-800 text-gray-300' : 'bg-slate-100 text-slate-900']" v-if="!isLoading")
     header(class="flex justify-end items-center gap-x-2 pr-4")
       SwitchDarkMode(:dark-mode="darkMode" @switch-dark-mode="switchDarkMode")
       SwitchDataPerPage(:dark-mode="darkMode" :data-per-page="dataPerPage" @switch-data-per-page="switchDataPerPage")
@@ -8,7 +8,7 @@ div
     ViewModeCard(v-if="viewMode === 'card'" :data="renderData" :dark-mode="darkMode")
     ViewModeList(v-else :data="renderData" :dark-mode="darkMode")
     ThePagination(:dark-mode="darkMode" :data-length="data.length" :data-per-page="dataPerPage" :current-page="currentPage" @change-current-page="changeCurrentPage")
-  div(v-show="isLoading")
+  div(v-else)
     p Loading data...
 </template>
 
@@ -20,13 +20,12 @@ import ViewModeCard from "./components/ViewModeCard.vue";
 import ViewModeList from "./components/ViewModeList.vue";
 import ThePagination from "./components/ThePagination.vue";
 import { ref, computed } from "vue";
+import { apiMethod } from "./utils/helper.js";
 
 import dummyData from "./assets/users-3010-data.json";
 
-const data = ref(dummyData.results); // Async
-const isLoading = computed(() => {
-  return data?.value === undefined; // wait for server response
-});
+const data = ref([]); // Async
+const isLoading = ref(true); // wait for server response
 
 const darkMode = ref(false);
 const dataPerPage = ref(30);
@@ -38,6 +37,17 @@ const renderData = computed(() => {
 
   return data.value.slice(startIndex, endIndex);
 });
+
+async function fetchUserData(number) {
+  try {
+    const response = await apiMethod.getHowManyUsers(number);
+
+    data.value = response.data.results;
+    isLoading.value = false;
+  } catch (error) {
+    console.log("error", error);
+  }
+}
 
 function switchDarkMode() {
   darkMode.value = !darkMode.value;
@@ -59,6 +69,8 @@ function changeCurrentPage(number) {
   localStorage.setItem("currentPage", JSON.stringify(number));
   currentPage.value = number;
 }
+
+fetchUserData(3010);
 
 // get previous value of darkMode when page reloaded
 if (localStorage.darkMode) {
