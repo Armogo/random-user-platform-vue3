@@ -90,8 +90,7 @@ function initPagination() {
       lastNum - 2,
       lastNum - 1,
       lastNum,
-    ];
-    // } else if (props.currentPage >= 5 || props.currentPage <= lastNum - 4) {
+    ];    
   } else {
     // currentPage is between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
     // [1, '...', 4, 5, 6, '...', 30]
