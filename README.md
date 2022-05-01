@@ -1,6 +1,7 @@
 # 專案說明
 
-以 Vue 3 + Pug + Tailwind CSS + Random User Generator API 開發，模擬可查看使用者資料的平台。
+以 Vue 3 + Pug + Tailwind CSS + Random User Generator API 開發，模擬可查看使用者資料的平台。  
+**佈署網址**: https://radom-user-platform.netlify.app/
 
 ## 環境設定
 - IDE: 推薦使用 [VSCode](https://code.visualstudio.com/) 搭配 [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)(VSCode extension)。  
@@ -10,16 +11,23 @@
 ## 下載專案
 1. 開啟終端機(Terminal) cd 到欲存放專案的本機位置  
   例如: `cd C:\Users\Public`
-2. 輸入 git clone 指令  
-  `git clone https://github.com/Armogo/random-user-platform-vue3.git`
+2. 輸入 git clone 指令下載專案  
+    ```
+    git clone https://github.com/Armogo/random-user-platform-vue3.git
+    ```
     
-3. 初始化  
-  `cd random-user-platform-vue3-main //進入專案資料夾`  
-  `npm install //安裝套件`
+3. 下載 node_modules  
+    ```
+    cd random-user-platform-vue3 
+    npm install
+    ```
 
 ## 執行專案
 1. 使用終端機(Terminal) cd 到專案資料夾
-  例如: `cd C:\Users\Public\random-user-platform-vue3-main`
+  例如: 
+    ```
+    cd C:\Users\Public\random-user-platform-vue3
+    ```
 2. 執行程式
   `npm run dev`
 3. 終端機(Terminal)顯示以下訊息時，表示成功
@@ -35,6 +43,9 @@
     ready in 496ms.
     ```
 4. 開啟瀏覽器，在網址列輸入 http://localhost:3000/
+
+## 結束執行專案
+  將視窗切換到終端機(Terminal)，鍵盤同時按下 `ctrl` 以及 `c`
 
 ---
 
