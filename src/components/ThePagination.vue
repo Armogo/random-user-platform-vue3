@@ -5,7 +5,7 @@ nav(class="py-1 relative z-0 flex justify-between w-[98%] mx-auto sm:w-96 sm:jus
     svg(class="h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true")
       path(fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd")        
   div(class="border-gray-300 flex justify-center items-center border text-sm font-medium grow" :class="[darkMode ? 'bg-transparent hover:bg-blue-500' : 'hover:bg-[#d3c5e8]', {'pointer-events-none': page === '...'}]" v-for="(page, index) of pagination" :key="index")
-    input(type="radio" name="page" class="hidden peer" :id="page" :value="page" v-model="currentPage" :checked="currentPage === page" @click.stop="changeCurrentPage(page)")
+    input(type="radio" name="page" class="hidden peer" :id="page" :value="page" :checked="currentPage === page"  @click.stop="changeCurrentPage(page)")
     label(:for="page" class="h-full w-full flex justify-center items-center cursor-pointer" :class="darkMode ? 'peer-checked:bg-blue-500' : 'peer-checked:bg-[#d3c5e8]'") {{page}}
   div(class="border-gray-300 flex justify-center items-center border rounded-r-md text-sm font-medium grow cursor-pointer" :class="darkMode ? 'bg-transparent hover:bg-blue-500' : 'hover:bg-[#d3c5e8]'" @click.stop="goNextPage")
     span.sr-only Next         
@@ -14,7 +14,7 @@ nav(class="py-1 relative z-0 flex justify-between w-[98%] mx-auto sm:w-96 sm:jus
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 
 const props = defineProps({
   darkMode: Boolean,
@@ -55,7 +55,7 @@ function initPagination() {
     for (let i = 1; i <= lastNum; i++) {
       pagination.value.push(i);
     }
-    return
+    return;
   }
 
   if (props.currentPage <= 2) {
@@ -90,7 +90,7 @@ function initPagination() {
       lastNum - 2,
       lastNum - 1,
       lastNum,
-    ];    
+    ];
   } else {
     // currentPage is between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
     // [1, '...', 4, 5, 6, '...', 30]
@@ -177,68 +177,70 @@ watch(
     let lastNum = totalPage.value;
     let newPagination = [];
 
-    if (lastNum < 10) {
-      // if total page < 10, show all page numbers:
-      // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
-      for (let i = 1; i <= lastNum; i++) {
-        newPagination.push(i);
+    nextTick(() => {
+      if (lastNum < 10) {
+        // if total page < 10, show all page numbers:
+        // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for (let i = 1; i <= lastNum; i++) {
+          newPagination.push(i);
+        }
+      } else if (newValue <= 2) {
+        // user chooses to go to page 1 or 2, pagination will become:
+        // [1, 2, 3, '...', 10]
+        newPagination = [1, 2, 3, "...", lastNum];
+      } else if (newValue === 3) {
+        // user chooses to go to page 3, pagination will become:
+        // [1, 2, 3, 4, '...', 10]
+        newPagination = [1, 2, 3, 4, "...", lastNum];
+      } else if (newValue === 4) {
+        // user chooses to go to page 4, pagination will become:
+        // [1, 2, 3, 4, 5, '...', 10]
+        newPagination = [1, 2, 3, 4, 5, "...", lastNum];
+      } else if (newValue === lastNum - 3) {
+        // user chooses to go to the last but 3 page, pagination will become:
+        // [1, '...', 6, 7, 8, 9, 10]
+        newPagination = [
+          1,
+          "...",
+          lastNum - 4,
+          lastNum - 3,
+          lastNum - 2,
+          lastNum - 1,
+          lastNum,
+        ];
+      } else if (newValue === lastNum - 2) {
+        // user chooses to go to the last but 2, pagination will become:
+        // [1, '...', 7, 8, 9, 10]
+        newPagination = [
+          1,
+          "...",
+          lastNum - 3,
+          lastNum - 2,
+          lastNum - 1,
+          lastNum,
+        ];
+      } else if (newValue >= lastNum - 1) {
+        // user chooses to go to the last but 1 or last page, pagination will become:
+        // [1, '...', 8, 9, 10]
+        newPagination = [1, "...", lastNum - 2, lastNum - 1, lastNum];
+      } else {
+        // user chooses to go to any page between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
+        // [1, '...', 4, 5, 6, '...', 30]
+        // [1, '...', 14, 15, 16, '...', 30]
+        // [1, '...', 25, 26, 27, '...', 30]
+        newPagination = [
+          1,
+          "...",
+          newValue - 1,
+          newValue,
+          newValue + 1,
+          "...",
+          lastNum,
+        ];
       }
-    } else if (newValue <= 2) {
-      // user chooses to go to page 1 or 2, pagination will become:
-      // [1, 2, 3, '...', 10]
-      newPagination = [1, 2, 3, "...", lastNum];
-    } else if (newValue === 3) {
-      // user chooses to go to page 3, pagination will become:
-      // [1, 2, 3, 4, '...', 10]
-      newPagination = [1, 2, 3, 4, "...", lastNum];
-    } else if (newValue === 4) {
-      // user chooses to go to page 4, pagination will become:
-      // [1, 2, 3, 4, 5, '...', 10]
-      newPagination = [1, 2, 3, 4, 5, "...", lastNum];
-    } else if (newValue === lastNum - 3) {
-      // user chooses to go to the last but 3 page, pagination will become:
-      // [1, '...', 6, 7, 8, 9, 10]
-      newPagination = [
-        1,
-        "...",
-        lastNum - 4,
-        lastNum - 3,
-        lastNum - 2,
-        lastNum - 1,
-        lastNum,
-      ];
-    } else if (newValue === lastNum - 2) {
-      // user chooses to go to the last but 2, pagination will become:
-      // [1, '...', 7, 8, 9, 10]
-      newPagination = [
-        1,
-        "...",
-        lastNum - 3,
-        lastNum - 2,
-        lastNum - 1,
-        lastNum,
-      ];
-    } else if (newValue >= lastNum - 1) {
-      // user chooses to go to the last but 1 or last page, pagination will become:
-      // [1, '...', 8, 9, 10]
-      newPagination = [1, "...", lastNum - 2, lastNum - 1, lastNum];
-    } else {
-      // user chooses to go to any page between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
-      // [1, '...', 4, 5, 6, '...', 30]
-      // [1, '...', 14, 15, 16, '...', 30]
-      // [1, '...', 25, 26, 27, '...', 30]
-      newPagination = [
-        1,
-        "...",
-        newValue - 1,
-        newValue,
-        newValue + 1,
-        "...",
-        lastNum,
-      ];
-    }
 
-    pagination.value = newPagination;
+      pagination.value = newPagination;
+    });
   }
 );
 
