@@ -1,6 +1,7 @@
 # 專案說明
 
-以 Vue 3 + Pug + Tailwind CSS + Random User Generator API 開發，模擬可查看使用者資料的平台。
+以 Vue 3 + Pug + Tailwind CSS + Random User Generator API 開發，模擬可查看使用者資料的平台。  
+**佈署網址**: https://radom-user-platform.netlify.app/
 
 ## 環境設定
 - IDE: 推薦使用 [VSCode](https://code.visualstudio.com/) 搭配 [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)(VSCode extension)。  
