@@ -45,67 +45,55 @@ function goNextPage() {
   }
 }
 
-// initial pagination value
-function initPagination() {
+function createPagination(currentPage) {
   let lastNum = totalPage.value;
+  let newPagination = [];
 
-  if (lastNum <= 9) {
+  if (lastNum < 10) {
     // if total page < 10, show all page numbers:
     // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
     for (let i = 1; i <= lastNum; i++) {
-      pagination.value.push(i);
+      newPagination.push(i);
     }
-    return;
-  }
-
-  if (props.currentPage <= 2) {
+  } else if (currentPage < 5) {
     // [1, 2, 3, '...', 30]
-    pagination.value = [1, 2, 3, "...", lastNum];
-  } else if (props.currentPage === 3) {
     // [1, 2, 3, 4, '...', 30]
-    pagination.value = [1, 2, 3, 4, "...", lastNum];
-  } else if (props.currentPage === 4) {
     // [1, 2, 3, 4, 5, '...', 30]
-    pagination.value = [1, 2, 3, 4, 5, "...", lastNum];
-  } else if (props.currentPage >= lastNum - 1) {
+    for (let i = 1; i <= currentPage + 1; i++) {
+      newPagination.push(i);
+    }
+    newPagination.push("...");
+    newPagination.push(lastNum);
+  } else if (currentPage > lastNum - 4) {
     // [1, '...', 28, 29, 30]
-    pagination.value = [1, "...", lastNum - 2, lastNum - 1, lastNum];
-  } else if (props.currentPage === lastNum - 2) {
     // [1, '...', 27, 28, 29, 30]
-    pagination.value = [
-      1,
-      "...",
-      lastNum - 3,
-      lastNum - 2,
-      lastNum - 1,
-      lastNum,
-    ];
-  } else if (props.currentPage === lastNum - 3) {
     // [1, '...', 26, 27, 28, 29, 30]
-    pagination.value = [
-      1,
-      "...",
-      lastNum - 4,
-      lastNum - 3,
-      lastNum - 2,
-      lastNum - 1,
-      lastNum,
-    ];
+    for (let i = currentPage - 1; i < lastNum + 1; i++) {
+      newPagination.push(i);
+    }
+    newPagination.unshift("...");
+    newPagination.unshift(1);
   } else {
     // currentPage is between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
     // [1, '...', 4, 5, 6, '...', 30]
     // [1, '...', 14, 15, 16, '...', 30]
     // [1, '...', 25, 26, 27, '...', 30]
-    pagination.value = [
+    newPagination = [
       1,
       "...",
-      props.currentPage - 1,
-      props.currentPage,
-      props.currentPage + 1,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
       "...",
       lastNum,
     ];
   }
+  pagination.value = newPagination;
+}
+
+// initial pagination value
+function initPagination() {
+  createPagination(props.currentPage);
 }
 
 // when dataPerPage changed, currentPage and pagination should change
@@ -114,58 +102,28 @@ watch(
   (newValue, oldValue) => {
     let oldTotalPage = Math.ceil(props.dataLength / oldValue);
     let newTotalPage = Math.ceil(props.dataLength / newValue);
-    let newCurrentPage;
+    let newCurrentPage = Math.round((oldValue * props.currentPage) / newValue);
     let newPagination;
 
-    if (newValue < oldValue) {
-      // data per page: [30 -> 10], [50 -> 30], [50 -> 30]
-
-      if (oldTotalPage === props.currentPage) {
-        // assume data length is 245
-        // data per page: [30 -> 10], [50 -> 30]
-        // total page: [9 -> 25], [5 -> 9]
-        // current page becomes: [9 -> 25], [5 -> 9]
-        newCurrentPage = newTotalPage;
-      } else if (props.currentPage === 1) {
-        // assume data length is 245
-        // data per page: [30 -> 10], [50 -> 30]
-        // current page becomes: [1 -> 1], [1 -> 1]
-        newCurrentPage = 1;
-        // but total page will become different
-        // so pagination should change
-        newPagination = [1, 2, 3, "...", totalPage.value];
-        pagination.value = newPagination;
-      } else {
-        newCurrentPage = Math.round((oldValue * props.currentPage) / newValue);
-      }
-      changeCurrentPage(newCurrentPage);
-      return;
+    if (props.currentPage === 1) {
+      // assume data length is 245
+      // data per page: [30 -> 10], [50 -> 30]
+      // current page becomes: [1 -> 1], [1 -> 1]
+      newCurrentPage = 1;
+      // but total page will become different
+      // so pagination should change
+      newPagination = [1, 2, 3, "...", newTotalPage];
+      pagination.value = newPagination;
+    } else if (newCurrentPage < 1) {
+      newCurrentPage = 1;
+    } else if (newCurrentPage > newTotalPage) {
+      // assume data length is 245
+      // data per page: [30 -> 10], [50 -> 30]
+      // total page: [9 -> 25], [5 -> 9]
+      // current page becomes: [9 -> 25], [5 -> 9]
+      newCurrentPage = newTotalPage;
     }
-
-    if (newValue > oldValue) {
-      // data per page: [10 -> 30], [30 -> 50], [10 -> 50]
-
-      if (oldTotalPage === props.currentPage) {
-        // assume data length is 245
-        // data per page: [10 -> 30], [30 -> 50]
-        // total page: [25 -> 9], [9 -> 5]
-        // current page becomes: [25 -> 9], [9 -> 5]
-        newCurrentPage = newTotalPage;
-      } else if (props.currentPage === 1) {
-        // assume data length is 245
-        // data per page: [10 -> 30], [30 -> 50]
-        // current page becomes: [1 -> 1], [1 -> 1]
-        newCurrentPage = 1;
-        // but total page will become different
-        // so pagination should change
-        newPagination = [1, 2, 3, "...", totalPage.value];
-        pagination.value = newPagination;
-      } else {
-        newCurrentPage = Math.ceil((oldValue * props.currentPage) / newValue);
-      }
-      changeCurrentPage(newCurrentPage);
-      return;
-    }
+    changeCurrentPage(newCurrentPage);
   }
 );
 
@@ -173,74 +131,7 @@ watch(
 watch(
   () => props.currentPage,
   (newValue, oldValue) => {
-    // All variables are Number
-    let lastNum = totalPage.value;
-    let newPagination = [];
-
-    nextTick(() => {
-      if (lastNum < 10) {
-        // if total page < 10, show all page numbers:
-        // [1, 2, 3, 4,], [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for (let i = 1; i <= lastNum; i++) {
-          newPagination.push(i);
-        }
-      } else if (newValue <= 2) {
-        // user chooses to go to page 1 or 2, pagination will become:
-        // [1, 2, 3, '...', 10]
-        newPagination = [1, 2, 3, "...", lastNum];
-      } else if (newValue === 3) {
-        // user chooses to go to page 3, pagination will become:
-        // [1, 2, 3, 4, '...', 10]
-        newPagination = [1, 2, 3, 4, "...", lastNum];
-      } else if (newValue === 4) {
-        // user chooses to go to page 4, pagination will become:
-        // [1, 2, 3, 4, 5, '...', 10]
-        newPagination = [1, 2, 3, 4, 5, "...", lastNum];
-      } else if (newValue === lastNum - 3) {
-        // user chooses to go to the last but 3 page, pagination will become:
-        // [1, '...', 6, 7, 8, 9, 10]
-        newPagination = [
-          1,
-          "...",
-          lastNum - 4,
-          lastNum - 3,
-          lastNum - 2,
-          lastNum - 1,
-          lastNum,
-        ];
-      } else if (newValue === lastNum - 2) {
-        // user chooses to go to the last but 2, pagination will become:
-        // [1, '...', 7, 8, 9, 10]
-        newPagination = [
-          1,
-          "...",
-          lastNum - 3,
-          lastNum - 2,
-          lastNum - 1,
-          lastNum,
-        ];
-      } else if (newValue >= lastNum - 1) {
-        // user chooses to go to the last but 1 or last page, pagination will become:
-        // [1, '...', 8, 9, 10]
-        newPagination = [1, "...", lastNum - 2, lastNum - 1, lastNum];
-      } else {
-        // user chooses to go to any page between 4 and the last but 3(4 <= page <= the last but 3), pagination will become:
-        // [1, '...', 4, 5, 6, '...', 30]
-        // [1, '...', 14, 15, 16, '...', 30]
-        // [1, '...', 25, 26, 27, '...', 30]
-        newPagination = [
-          1,
-          "...",
-          newValue - 1,
-          newValue,
-          newValue + 1,
-          "...",
-          lastNum,
-        ];
-      }
-
-      pagination.value = newPagination;
-    });
+    nextTick(() => createPagination(newValue));
   }
 );
 
