@@ -133,7 +133,7 @@ watch(
         newCurrentPage = 1;
         // but total page will become different
         // so pagination should change
-        newPagination = [1, 2, 3, "...", totalPage.value];
+        newPagination = [1, 2, 3, "...", newTotalPage];
         pagination.value = newPagination;
       } else {
         newCurrentPage = Math.round((oldValue * props.currentPage) / newValue);
@@ -158,7 +158,7 @@ watch(
         newCurrentPage = 1;
         // but total page will become different
         // so pagination should change
-        newPagination = [1, 2, 3, "...", totalPage.value];
+        newPagination = [1, 2, 3, "...", newTotalPage];
         pagination.value = newPagination;
       } else {
         newCurrentPage = Math.ceil((oldValue * props.currentPage) / newValue);
